@@ -9,8 +9,10 @@ import javafx.event.Event;
 import javafx.event.EventHandler;
 import javafx.scene.Group;
 import javafx.scene.Scene;
+import javafx.scene.control.ProgressBar;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.paint.Color;
+import javafx.scene.shape.Circle;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
@@ -19,26 +21,23 @@ import javafx.util.Duration;
 
 public class WaiterApp extends Application {
 	
-	private int DEFAULT_HEIGHT = 640;
-	private int DEFAULT_WIDTH = 360;
+	private int DEFAULT_HEIGHT = 450;
+	private int DEFAULT_WIDTH = 380;
 	private int currentStep = 0;
 	
-	//1500 - work time
-	//300 pause time
-	//900 long pause
-	
-	private int workTime =  5; //Seconds
-	private int pauseTime = 3;
-	private int longPauseTime = 4;
+	/** To see the progress bars step, decrease the 3 time variables below */
+	private int workTime =  1500; //Seconds
+	private int pauseTime = 300;
+	private int longPauseTime = 900;
 	private Integer timeSeconds = 0;
 	
 	public Timeline timeline;
 	public Text timerText;
 	
 	Map<Integer, PomodoroPhase> phaseByStep = new HashMap<>();
-	ArrayList<Rectangle> loadingBars = new ArrayList<>();
+	ArrayList<ProgressBar> loadingBars = new ArrayList<>();
 	
-	int fullBarWidth = 250;
+	int fullBarWidth = 300;
 	
 	public static void main(String[] args) {
 		launch(args);
@@ -52,6 +51,10 @@ public class WaiterApp extends Application {
 		Group root = new Group();
 		Scene scene = new Scene(root);
 		primaryStage.setScene(scene);
+		
+		Rectangle bg = new Rectangle(DEFAULT_WIDTH, DEFAULT_HEIGHT, Color.ALICEBLUE);
+		root.getChildren().add(bg);
+		
 		addTimerBarsToGroup(root);
 		addStartButton(root);
 		addTimerText(root);
@@ -71,7 +74,7 @@ public class WaiterApp extends Application {
 	private void addTimerText(Group group) {
 		timerText = new Text("00:00:00");
 		timerText.setX(150);
-		timerText.setY(100);
+		timerText.setY(60);
 		timerText.setFont(new Font("Verdana", 20));
 		
 		group.getChildren().add(timerText);
@@ -81,12 +84,9 @@ public class WaiterApp extends Application {
 		int height = 70;
 		int width = 70;
 		int xPos = 40;
-		int yPos = 40;
+		int yPos = 20;
 		
-		Rectangle start = new Rectangle(width, height);
-		start.setX(xPos);
-		start.setY(yPos);
-		start.setFill(Color.MEDIUMSLATEBLUE);
+		Circle start = new Circle(70, 50, width/2, Color.LIGHTSTEELBLUE);
 		
 		Text text = new Text("Start");
 		text.setFont(Font.font("Verdana", 20));
@@ -96,7 +96,6 @@ public class WaiterApp extends Application {
 		start.setOnMouseClicked(new EventHandler<MouseEvent>() {
 			@Override
 			public void handle(MouseEvent arg0) {
-				System.out.println("** Start button clicked ***");
 				startTimer();
 			}
 		});
@@ -104,7 +103,6 @@ public class WaiterApp extends Application {
 		text.setOnMouseClicked(new EventHandler<MouseEvent>() {
 			@Override
 			public void handle(MouseEvent arg0) {
-				System.out.println("** Start Text clicked ***");
 				startTimer();
 			}
 		});
@@ -114,58 +112,37 @@ public class WaiterApp extends Application {
 	
 	private void addTimerBarsToGroup(Group group) {
 		int height = 30;
-		int width = 250;
+		int width = 300;
 		
 		int verticalOffset = 10;
 		int xPos= 20;
-		int yPos = 200;
+		int yPos = 100;
 		
 		for(int i = 0; i < 8; i++) {
 			
-			Rectangle bar = new Rectangle(width, height);
-			bar.setX(xPos);
-			bar.setY(yPos);
+			ProgressBar pb = new ProgressBar(0);
+			pb.setLayoutX(xPos);
+			pb.setLayoutY(yPos);
+			pb.setPrefHeight(height);
+			pb.setPrefWidth(width);
 			
-			Text text;
+			Text indic = new Text();
+			indic.setFont(Font.font("Comic Sans", 20));
+			indic.setX(xPos + width + 5);
+			indic.setY(yPos + 21);
 			
-			Rectangle lBar = new Rectangle(25, height);
-			lBar.setX(xPos);
-			lBar.setY(yPos);
-			lBar.setOpacity(.5);
-
 			if(i % 2 == 0) { // Work timer bar
-				bar.setStroke(Color.DARKBLUE);
-				bar.setFill(Color.ALICEBLUE);
-
-				lBar.setStroke(Color.DARKBLUE);
-				lBar.setFill(Color.PALETURQUOISE);
-
-				text = new Text("Work");
-				text.setFont(Font.font("Verdana", 20));
-				text.setOpacity(.8);
-				text.setX(xPos + width/2);
-				text.setY(yPos + height);
-
+				indic.setText("W");
 				yPos += height;
 			} else { //Break timer bar
-				bar.setStroke(Color.DARKBLUE);
-				bar.setFill(Color.LAVENDER);
-				
-				lBar.setStroke(Color.DARKBLUE);
-				lBar.setFill(Color.LIGHTSKYBLUE);
-				
-				text = new Text("Break");
-				text.setFont(Font.font("Verdana", 20));
-				text.setOpacity(.8);
-				text.setX(xPos + width/2);
-				text.setY(yPos + height);
-				
+				indic.setText("P");
+				indic.setX(xPos + width + 7);
 				yPos = yPos + height + verticalOffset;
 			}
 			
-			loadingBars.add(lBar);
-			group.getChildren().addAll(bar, text);
-			group.getChildren().add(lBar);
+			loadingBars.add(pb);
+			group.getChildren().add(pb);
+			group.getChildren().add(indic);
 		}
 	}
 	
@@ -202,20 +179,16 @@ public class WaiterApp extends Application {
 		int elapsedTime = currPhaseTime - timeSeconds;
 		
 		double fractionElapsed = (double)elapsedTime/(double)currPhaseTime;
-		System.out.println(currPhaseTime + ", " + elapsedTime + ", " + fractionElapsed);
 		
-		loadingBars.get(currentStep).setWidth(fullBarWidth * fractionElapsed);
+		loadingBars.get(currentStep).setProgress(fractionElapsed);
 	}
 	
 	public int getCurrentPhaseTime()
 	{
 		switch(phaseByStep.get(currentStep)) {
-		case WORK:
-			return workTime;
-		case PAUSE:
-			return pauseTime;
-		case LONGPAUSE:
-			return longPauseTime;
+		case WORK:		return workTime;
+		case PAUSE:	    return pauseTime;
+		case LONGPAUSE:	return longPauseTime;
 		}
 		return 0;
 	}
@@ -224,8 +197,8 @@ public class WaiterApp extends Application {
 		currentStep += 1;
 		if(currentStep > 7) { 
 			currentStep = 0;
-			for(Rectangle r : loadingBars)
-				r.setWidth(0);
+			for(ProgressBar r : loadingBars)
+				r.setProgress(0);
 		}
 		
 		switch(phaseByStep.get(currentStep)) {
@@ -241,12 +214,13 @@ public class WaiterApp extends Application {
 	
 	public String getRemainingTime() {
 		int tempRem = timeSeconds;
-		int hours = timeSeconds / 3600;
+		String hours = String.format("%02d", timeSeconds / 3600);
 		tempRem = tempRem % 3600;
-		int minutes = tempRem / 60;
+		String minutes = String.format("%02d", tempRem / 60);
 		tempRem = tempRem % 60;
+		String seconds = String.format("%02d", tempRem);
 		
-		return hours + ":" + minutes + ":" + tempRem;
+		return hours + ":" + minutes + ":" + seconds;
 	}
 	
 	enum PomodoroPhase {
