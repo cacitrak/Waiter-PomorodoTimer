@@ -2,18 +2,20 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
+import app.PomodoroPhase;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
 import javafx.application.Application;
 import javafx.event.Event;
 import javafx.event.EventHandler;
+import javafx.fxml.FXMLLoader;
 import javafx.scene.Group;
 import javafx.scene.Scene;
 import javafx.scene.control.ProgressBar;
 import javafx.scene.input.MouseEvent;
+import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
-import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
@@ -45,7 +47,14 @@ public class WaiterApp extends Application {
 	
 	@Override
 	public void start(Stage primaryStage) throws Exception {
+		Font.loadFont(WaiterApp.class.getResource("/fonts/fontawesome.ttf").toExternalForm(), 12);
 		primaryStage.setTitle("Waiter");
+		
+		Pane root = FXMLLoader.load(getClass().getResource("gui/waiterApp.fxml"));
+		
+		Scene scene = new Scene(root);
+		primaryStage.setScene(scene);
+		/*
 		primaryStage.setHeight(DEFAULT_HEIGHT);
 		primaryStage.setWidth(DEFAULT_WIDTH);
 		Group root = new Group();
@@ -67,7 +76,7 @@ public class WaiterApp extends Application {
 		phaseByStep.put(5, PomodoroPhase.PAUSE);
 		phaseByStep.put(6, PomodoroPhase.WORK);
 		phaseByStep.put(7, PomodoroPhase.LONGPAUSE);
-		
+		*/
 		primaryStage.show();
 	}
 	
@@ -221,11 +230,5 @@ public class WaiterApp extends Application {
 		String seconds = String.format("%02d", tempRem);
 		
 		return hours + ":" + minutes + ":" + seconds;
-	}
-	
-	enum PomodoroPhase {
-		WORK,
-		PAUSE,
-		LONGPAUSE
 	}
 }
