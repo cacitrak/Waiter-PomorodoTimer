@@ -152,7 +152,7 @@ public class WaiterController implements Initializable {
 	}
 	
 	private void prepPreviousPhase() {
-		if(currentStep != 1 && currentPhase != PomodoroPhase.WORK){
+		if(currentStep != 1 || (currentStep == 1 && currentPhase != PomodoroPhase.WORK)){
 			PomodoroPhase prevPhase = prevPhaseType();
 			currentPhase().setProgress(0);
 			if(prevPhase == PomodoroPhase.PAUSE) {
