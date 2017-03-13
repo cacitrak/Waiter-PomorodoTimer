@@ -13,7 +13,6 @@ import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Label;
-import javafx.scene.control.PopupControl;
 import javafx.scene.control.ProgressBar;
 import javafx.scene.control.Tooltip;
 import javafx.util.Duration;
@@ -38,12 +37,9 @@ public class WaiterController implements Initializable {
 	
 	private HashMap<String, ProgressBar> barMap;
 	
-	private int workTime = 10; 
-			//1500;
-	private int shortPauseTime = 5;
-	//300;
-	private int longPauseTime = 8;
-	//900;
+	private int workTime = 1500;
+	private int shortPauseTime = 300;
+	private int longPauseTime = 900;
 	
 	private app.PomodoroPhase currentPhase = app.PomodoroPhase.WORK;
 	private int currentStep = 1;
@@ -62,8 +58,7 @@ public class WaiterController implements Initializable {
 		forward.setText(AwesomeIcons.ICON_STEP_FORWARD);
 		Tooltip.install(forward, new Tooltip("Step forward one phase"));
 		
-		timerText.setText("00:00:00");
-		
+		resetTimerText();		
 		barMap = new HashMap<>();
 		barMap.put(PomodoroPhase.WORK.name() + 1, work1);
 		barMap.put(PomodoroPhase.WORK.name() + 2, work2);
@@ -76,8 +71,7 @@ public class WaiterController implements Initializable {
 		barMap.put(PomodoroPhase.LONGPAUSE.name() + 4, pause4);
 	}
 	
-	@FXML
-	private void startPauseMouseClick() {
+	@FXML private void startPauseMouseClick() {
 		if(AwesomeIcons.ICON_PLAY.equals(startPause.getText())){
 			startPause.setText(AwesomeIcons.ICON_PAUSE);
 			startTimer();
@@ -97,8 +91,8 @@ public class WaiterController implements Initializable {
 		else {
 			timeline = new Timeline();
 
-			timeSeconds = workTime;
-			timeline.setCycleCount(workTime);
+			timeSeconds = currentPhaseTime();
+			timeline.setCycleCount(timeSeconds);
 			timeline.getKeyFrames().add(
 					new KeyFrame(Duration.seconds(1), 
 							new EventHandler() {
@@ -124,9 +118,23 @@ public class WaiterController implements Initializable {
 		timeline.pause();
 	}
 	
-	@FXML
-	public void resetTimer() {
+	@FXML public void resetTimer() {
 		prepFirstPhase();
+	}
+	
+	@FXML public void stepForwardPhase() {
+		if(timeline != null) {
+			timeline.stop();
+		} 
+		completeCurrentPhase();
+		prepNextPhase();
+	}
+	
+	@FXML public void stepBackPhase() {
+		if(timeline != null) {
+			timeline.stop();
+		}
+		prepPreviousPhase();
 	}
 	
 	private void prepNextPhase() {
@@ -140,6 +148,34 @@ public class WaiterController implements Initializable {
 		}
 		timeSeconds = nextPhaseTime();
 		currentPhase = nextPhase;
+		resetTimerText();
+	}
+	
+	private void prepPreviousPhase() {
+		if(currentStep != 1 && currentPhase != PomodoroPhase.WORK){
+			PomodoroPhase prevPhase = prevPhaseType();
+			currentPhase().setProgress(0);
+			if(prevPhase == PomodoroPhase.PAUSE) {
+				currentStep--;
+			}
+			currentPhase = prevPhase;
+			timeSeconds = currentPhaseTime();
+			resetTimerText();
+		}
+	}
+	
+	private PomodoroPhase prevPhaseType() {
+		switch(currentPhase) {
+		case WORK:
+			if(currentStep != 1)
+				return PomodoroPhase.PAUSE;
+			else
+				return null;
+		case PAUSE:
+		case LONGPAUSE:
+			return PomodoroPhase.WORK;
+		}
+		return PomodoroPhase.WORK;
 	}
 	
 	private void prepFirstPhase() {
@@ -150,7 +186,7 @@ public class WaiterController implements Initializable {
 			timeSeconds = workTime;
 			timeline.setCycleCount(workTime);
 			resetBars();
-			timerText.setText("00:00:00");
+			resetTimerText();
 			if(AwesomeIcons.ICON_PAUSE.equals(startPause.getText()))
 				startPause.setText(AwesomeIcons.ICON_PLAY);
 		}
@@ -213,5 +249,14 @@ public class WaiterController implements Initializable {
 	private void resetBars() {
 		for(ProgressBar r : barMap.values())
 			r.setProgress(0);
+	}
+	
+	private void completeCurrentPhase() {
+		currentPhase().setProgress(1);
+		if(timeline != null) timeline.pause();
+	}
+	
+	private void resetTimerText() {
+		timerText.setText("00:00:00");
 	}
 }
