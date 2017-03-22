@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.geometry.*?>
-<?import javafx.scene.*?>
-<?import javafx.scene.text.*?>
-<?import javafx.scene.control.*?>
-<?import java.lang.*?>
-<?import javafx.scene.layout.*?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ProgressBar?>
+<?import javafx.scene.control.Separator?>
+<?import javafx.scene.layout.Pane?>
+<?import javafx.scene.text.Font?>
 
-<Pane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="450.0" prefWidth="380.0" stylesheets="@style/icons_blue.css" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="gui.WaiterController">
+<Pane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="268.0" prefWidth="345.0" stylesheets="@style/icons_blue.css" xmlns="http://javafx.com/javafx/8.0.111" xmlns:fx="http://javafx.com/fxml/1" fx:controller="gui.WaiterController">
    <children>
       <ProgressBar fx:id="work1" layoutX="14.0" layoutY="79.0" prefWidth="200.0" progress="0.0" />
       <ProgressBar fx:id="pause1" layoutX="14.0" layoutY="97.0" prefWidth="200.0" progress="0.0" />
@@ -31,7 +31,7 @@
       </ProgressBar>
       <Label layoutX="244.0" layoutY="80.0" text="Work" />
       <Label layoutX="244.0" layoutY="98.0" text="Break (Short)" />
-      <Separator layoutY="56.0" prefHeight="23.0" prefWidth="380.0">
+      <Separator layoutY="56.0" prefHeight="23.0" prefWidth="345.0">
          <padding>
             <Insets bottom="10.0" top="10.0" />
          </padding>
